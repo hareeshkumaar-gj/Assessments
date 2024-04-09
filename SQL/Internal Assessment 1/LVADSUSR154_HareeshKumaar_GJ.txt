@@ -1,0 +1,50 @@
+1)select CustomerID,sum(DataUsed) as DataGB from CustomerInteractions
+where month="March" and year=2024 group by customerID
+having DataGB > (select avg(DataUsed) from CustomerInteractions where month = "March");
+
+2)select customerID, sum(CallDuration) as DurationSum from CustomerInteractions
+where month="March" and year=2024 group by customerID
+having (customerID,DurationSum) >  any (select customerID,DurationSum from CustomerInteractions where month = "February");
+
+3)select customerID,sum(MessageCount),sum(Dataused),month from CustomerInteractions
+group by customerID,month order by sum(MessageCount),sum(Dataused) desc;
+
+4)select ProductTypeID,sum(TotalSalesAmount) 
+as TotalSales from QuarterlySales 
+group by ProductTypeID;
+select sum(TotalSalesAmount) as Product1Sales 
+from QuarterlySales where ProductTypeID=1;
+
+5)select ProductTypeID,sum(UnitsSold) as TotalUnitsSold,sum(TotalSalesAmount) 
+as TotalSales from QuarterlySales
+where Quarter="Q1" and year=2024 
+group by ProductTypeID
+order by TotalUnitsSold desc limit 1 ;
+
+6)select sum(TotalSalesAmount)/sum(UnitsSold) as AvgPricePerUnit 
+from QuarterlySales where ProductTypeID=1 and Quarter="Q2" and year=2024 ;
+
+7)select region,sum(ConsumptionKWh) as Energy from SectorEnergyConsumption 
+where Month="March" and year=2024 and EnergySource in('Wind','Solar') group by region
+having Energy>avg(ConsumptionKWh);
+
+8)select distinct(sector) from SectorEnergyConsumption
+where month = "March" and 
+(ConsumptionKWh) > any (select ConsumptionKWh from SectorEnergyConsumption where month = "February");
+
+9)select sum(ConsumptionKWh),EnergySource from SectorEnergyConsumption
+where month ="February" and year = 2024
+group by EnergySource;
+
+10)select customername from InsuranceActivities 
+    where Investigation="No" and 
+    (ClaimsCount > (select avg(claimscount) from InsuranceActivities) or
+    FeedbackScore > (select avg(FeedbackScore) from InsuranceActivities));
+
+11)   select sum(annualPremium) from InsuranceActivities
+    where Investigation="No" and 
+    FeedbackScore > (select avg(FeedbackScore) from InsuranceActivities) and
+    claimscount > 1;
+
+12)  select avg(feedbackscore),policytype,claimscount from InsuranceActivities
+    group by policytype,claimscount;
