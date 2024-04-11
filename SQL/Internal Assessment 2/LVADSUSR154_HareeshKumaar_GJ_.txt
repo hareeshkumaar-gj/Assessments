@@ -1,0 +1,73 @@
+1) select machine_id 
+from l1_maintenance_records
+where month(maintenance_date) = 3 and year(maintenance_date) = 2024
+and cost > (select avg(cost) from l1_maintenance_records 
+where maintenance_date like "2024-03-%");
+
+2)select maintenance_type,count(maintenance_type) as Frequency 
+from l1_maintenance_records
+where maintenance_date like "2024-03-%"
+group by maintenance_type 
+order by Frequency desc limit 1; 
+
+3)select technician_name,round(avg(cost)) as Maintenance_Cost,count(technician_name) as Count
+from l1_maintenance_records
+where maintenance_date like "2024-03-%"
+group by technician_name 
+order by Maintenance_Cost desc limit 1;
+
+4)select product_id,round(avg(incident_count_pre_update-incident_count_post_update),2) as Reduction
+from l2_updates 
+group by product_id;
+
+5)select t1.update_id from l2_updates t1
+join l2_updates t2 
+on t1.product_id=t2.product_id
+where t1.user_feedback_score > t2.user_feedback_score;
+
+6)select product_id,(incident_count_pre_update-incident_count_post_update) as Improvement 
+from l2_updates
+group by product_id,Improvement 
+order by Improvement limit 1;
+
+7)select p.patient_name,v.facility_id,v.reason_for_visit,t.outcome 
+from l3_visits v join l3_patients p using(patient_id)
+join l3_treatments t using(visit_id)
+where v.visit_date like "2024-03-%" 
+ group by p.patient_name,v.facility_id,v.reason_for_visit,t.outcome 
+ having count(facility_id) > 1; 
+
+8) select f.facility_name,count(v.visit_id) as Count
+ from l3_facilities f join l3_visits v using(facility_id)
+ where reason_for_visit = "Emergency" and visit_date like "2024-03-%"
+ group by f.facility_name
+ order by count desc limit 1;
+
+9)  select p.insurance_provider,count(t.treatment_id) as Count
+ from l3_patients p join l3_visits v using(patient_id)
+ join l3_treatments t using(visit_id)
+ where t.outcome="Complicated" 
+ and quarter(v.visit_date)=1 and year(v.visit_date)=2024
+ group by p.insurance_provider
+ order by Count desc limit 1;
+
+10) select p.category,sum(s.quantity) as Total_Quantity
+ from l4_products p,l4_sales s
+ group by category;
+
+11)create view SalesData as 
+ select st.region,s.sale_date,sum(p.price*s.quantity) as Total_Sales
+ from l4_sales s join l4_stores st
+ using(store_id)
+ join l4_products p using(product_id)
+ group by region,sale_date;
+ 
+ select region,sum(Total_Sales) as SaleSum
+ from SalesData 
+ where quarter(sale_date)=1 and year(sale_date)=2024
+ group by region
+ order by SaleSum desc limit 1;
+
+12) select * from l4_products p JOIN l4_sales s
+ using (product_id)
+ where s.sale_date like "2024-03-%";
